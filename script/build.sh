@@ -6,6 +6,7 @@
 # Created Time: 2020-05-08 17:12:40
 #########################################################################
 #!/bin/bash
+export GO111MODULE=on
 protoc --go_out=plugins=grpc:. ./pb/*.proto
 
 rm -rf client.x server.x

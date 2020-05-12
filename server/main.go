@@ -4,6 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"github.com/go-grpc-example/pb"
+	middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	ggp "github.com/grpc-ecosystem/go-grpc-prometheus"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"net"
@@ -27,7 +29,10 @@ func main() {
 	}
 
 	echoServer := newEchoServer()
-	s := grpc.NewServer()
+	s := grpc.NewServer(grpc.StatsHandler(NewStateHandler()),
+		grpc.StreamInterceptor(middleware.ChainStreamServer(ggp.StreamServerInterceptor)),
+		grpc.UnaryInterceptor(middleware.ChainUnaryServer(ggp.UnaryServerInterceptor)))
+
 	pb.RegisterEchoServiceServer(s, echoServer)
 
 	if err := s.Serve(listener); err != nil {
